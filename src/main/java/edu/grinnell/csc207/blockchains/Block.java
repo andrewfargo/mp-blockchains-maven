@@ -19,6 +19,7 @@ public class Block {
 
   private static MessageDigest md;
   private static Random rd = new Random();
+  private static final fstr = "Block %d (Transaction: %s, Nonce: %l, prevHash: %s, hash: %s)";
 
   static {
     try {
@@ -136,7 +137,7 @@ public class Block {
    * @return the transaction.
    */
   public Transaction getTransaction() {
-    return new Transaction("Here", "There", 0); // STUB
+    return this.data;
   } // getTransaction()
 
   /**
@@ -172,6 +173,7 @@ public class Block {
    * @return a string representation of the block.
    */
   public String toString() {
-    return "";  // STUB
+    return String.format(Block.fstr, this.blockNum, this.data.toString(), this.nonceVal,
+			 this.prevHash.toString(), this.blockHash.toString());
   } // toString()
 } // class Block
