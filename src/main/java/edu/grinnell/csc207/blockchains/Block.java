@@ -128,7 +128,7 @@ public class Block {
     do {
       this.nonceVal = rd.nextLong();
       this.computeHash();
-    } while (check.isValid(this.blockHash));
+    } while (!check.isValid(this.blockHash));
   } // mine()
   
   /**
@@ -138,8 +138,8 @@ public class Block {
   private void computeHash() {
     md.reset();
     md.update(ByteBuffer.allocate(Integer.BYTES).putInt(this.blockNum));
-    md.update(ByteBuffer.allocate(Integer.BYTES).putInt(this.data.hashcode()));
-    md.update(this.prevHash.getBytes());
+    md.update(ByteBuffer.allocate(Integer.BYTES).putInt(this.data.hashCode()));
+    md.update(this.previousHash.getBytes());
     md.update(ByteBuffer.allocate(Long.BYTES).putLong(this.nonceVal));
     this.blockHash = new Hash(md.digest());
   } // computeHash()
@@ -172,7 +172,7 @@ public class Block {
    * @return the nonce.
    */
   public long getNonce() {
-    return this.nonce;
+    return this.nonceVal;
   } // getNonce()
 
   /**
@@ -181,7 +181,7 @@ public class Block {
    * @return the hash of the previous block.
    */
   Hash getPrevHash() {
-    return this.prevHash;
+    return this.previousHash;
   } // getPrevHash
 
   /**
@@ -199,7 +199,7 @@ public class Block {
    * @return a string representation of the block.
    */
   public String toString() {
-    return String.format(Block.fstr, this.blockNum, this.data.toString(), this.nonceVal,
-			 this.prevHash.toString(), this.blockHash.toString());
+    return String.format(Block.FSTR, this.blockNum, this.data.toString(), this.nonceVal,
+			 this.previousHash.toString(), this.blockHash.toString());
   } // toString()
 } // class Block
