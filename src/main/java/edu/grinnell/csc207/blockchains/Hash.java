@@ -1,15 +1,21 @@
 package edu.grinnell.csc207.blockchains;
+import java.util.Arrays;
 
 /**
  * Encapsulated hashes.
  *
- * @author Your Name Here
+ * @author Andrew Fargo
  * @author Samuel A. Rebelsky
  */
 public class Hash {
   // +--------+------------------------------------------------------
   // | Fields |
   // +--------+
+
+  /**
+   * Our local copy of the hash's bytes.
+   */
+  byte[] hash;
 
   // +--------------+------------------------------------------------
   // | Constructors |
@@ -22,7 +28,7 @@ public class Hash {
    *   The data to copy into the hash.
    */
   public Hash(byte[] data) {
-    // STUB
+    this.hash = Arrays.copyOf(data, data.length);
   } // Hash(byte[])
 
   // +---------+-----------------------------------------------------
@@ -35,7 +41,7 @@ public class Hash {
    * @return the number of bytes in the hash.
    */
   public int length() {
-    return 0;   // STUB
+    return hash.length;
   } // length()
 
   /**
@@ -48,7 +54,7 @@ public class Hash {
    * @return the ith byte
    */
   public byte get(int i) {
-    return 0;   // STUB
+    return hash[i];
   } // get()
 
   /**
@@ -58,7 +64,7 @@ public class Hash {
    * @return a copy of the bytes in the hash.
    */
   public byte[] getBytes() {
-    return new byte[] {1, 2, 3, 4, 5};      // STUB
+    return Arrays.copyOf(hash, hash.length);
   } // getBytes()
 
   /**
@@ -67,7 +73,11 @@ public class Hash {
    * @return the hash as a hex string.
    */
   public String toString() {
-    return "";          // STUB
+    String out = "";
+    for (byte b : this.hash) {
+      out += String.format("%0X");
+    } // for
+    return out;
   } // toString()
 
   /**
@@ -80,8 +90,12 @@ public class Hash {
    *   otherwise.
    */
   public boolean equals(Object other) {
-    return false;       // STUB
+    return (other instanceof Hash) && this.equals((Hash) other);
   } // equals(Object)
+
+  public boolean equals(Hash other) {
+    return Arrays.equals(this.hash, other.getBytes());
+  } // equals(Hash)
 
   /**
    * Get the hash code of this object.
