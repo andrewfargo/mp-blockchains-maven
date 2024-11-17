@@ -16,25 +16,49 @@ public class Block {
   // +--------+------------------------------------------------------
   // | Fields |
   // +--------+
-
-  private static MessageDigest md;
+  
+  /**
+   * A random number generator identical across blocks.
+   */
   private static Random rd = new Random();
-  private static final fstr = "Block %d (Transaction: %s, Nonce: %l, prevHash: %s, hash: %s)";
+  
+  /**
+   * The formatting string for toString() method.
+   */
+  private static final FSTR = "Block %d (Transaction: %s, Nonce: %l, prevHash: %s, hash: %s)";
 
-  static {
-    try {
-      md = MessageDigest.getInstance("sha-256");
-    } catch (NoSuchAlgorithmException e) {
-      // Algorithm not supported
-      throw new RuntimeException(e);
-    } // try/catch
-  } // static
-
+  /**
+   * This block's number in the chain.
+   */
   private int blockNum;
+  
+  /**
+   * The transaction data.
+   */
   private Transaction data;
+  
+  /**
+   * The hash of the previous block in the chain.
+   */
   private Hash previousHash;
+  
+  /**
+   * The nonce value.
+   * This value changes during mining.
+   */
   private long nonceVal;
+  
+  /**
+   * The hash of the block.
+   * This value changes during mining.
+   */
   private Hash blockHash;
+
+  /**
+   * This block's MessageDigest instance.
+   * This is not static to allow for future parallelization.
+   */
+  private MessageDigest md;
 
   // +--------------+------------------------------------------------
   // | Constructors |
@@ -48,10 +72,12 @@ public class Block {
    * @param transaction The transaction data.
    * @param prevHash The previous block's hash.
    */
-  private Block(int num, Transaction transaction, Hash prevHash) {
+  private Block(int num, Transaction transaction, Hash prevHash)
+    throws NoSuchAlgorithmException {
     this.blockNum = num;
     this.data = transaction;
     this.previousHash = prevHash;
+    this.md = MessageDigest.getInstance("sha-256");
   } // Block(int, Transaction, Hash)
   
   /**
