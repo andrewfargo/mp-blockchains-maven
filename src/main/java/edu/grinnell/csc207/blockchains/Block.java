@@ -1,5 +1,8 @@
 package edu.grinnell.csc207.blockchains;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 /**
  * Blocks to be stored in blockchains.
  *
@@ -10,6 +13,18 @@ public class Block {
   // +--------+------------------------------------------------------
   // | Fields |
   // +--------+
+
+  private static MessageDigest md;
+
+  static {
+    try {
+      md = MessageDigest.getInstance("sha-256");
+    } catch (NoSuchAlgorithmException e) {
+      // Algorithm not supported
+      throw new RuntimeException(e);
+    } // try/catch
+  } // static
+
 
   // +--------------+------------------------------------------------
   // | Constructors |
