@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import java.util.Arrays;
-
 /**
  * A variety of utilities for getting input.
  *
@@ -18,6 +16,15 @@ public class IOUtils {
 
   /**
    * Prompt for a string and return it.
+   *
+   * @param pen
+   *   Where to print the prompt.
+   * @param eyes
+   *   How to read input.
+   * @param prompt
+   *   The prompt to print.
+   *
+   * @return the string read.
    */
   public static String readLine(PrintWriter pen, BufferedReader eyes,
       String prompt) throws IOException {

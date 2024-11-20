@@ -22,8 +22,9 @@ public class BlockChainUI {
   // | Constants |
   // +-----------+
 
-  // The number of bytes we validate. Should be set to 3 before
-  // submitting.
+  /**
+   * The number of bytes we validate. Should be set to 3 before submitting.
+   */
   static final int VALIDATOR_BYTES = 0;
 
   // +---------+-----------------------------------------------------
@@ -66,18 +67,18 @@ public class BlockChainUI {
     BufferedReader eyes = new BufferedReader(new InputStreamReader(System.in));
 
     // Set up our blockchain.
-    HashValidator validator = 
-      (h) -> {
-        if (h.length() < VALIDATOR_BYTES) {
-          return false;
-        } // if
-        for (int v = 0; v < VALIDATOR_BYTES; v++) {
-          if (h.get(v) != 0) {
+    HashValidator validator =
+        (h) -> {
+          if (h.length() < VALIDATOR_BYTES) {
             return false;
           } // if
-        } // for
-        return true;
-      };
+          for (int v = 0; v < VALIDATOR_BYTES; v++) {
+            if (h.get(v) != 0) {
+              return false;
+            } // if
+          } // for
+          return true;
+        };
     BlockChain chain = new BlockChain(validator);
 
     instructions(pen);
