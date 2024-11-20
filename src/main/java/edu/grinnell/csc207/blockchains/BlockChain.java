@@ -36,6 +36,11 @@ public class BlockChain implements Iterable<Transaction> {
   // | Helpers |
   // +---------+
 
+  // We may consider adding a Hashmap<String, Integer> for user/balance methods?
+  // Not sure if it would complicate things, maybe we could add the map
+  // as a field and return a boolean if something goes wrong...
+  // I'd need to sketch it out. - Andrew
+  
   // +---------+-----------------------------------------------------
   // | Methods |
   // +---------+
