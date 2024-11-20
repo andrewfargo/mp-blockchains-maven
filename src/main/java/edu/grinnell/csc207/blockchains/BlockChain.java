@@ -2,6 +2,8 @@ package edu.grinnell.csc207.blockchains;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.HashSet;
+
 
 /**
  * A full blockchain.
@@ -12,6 +14,9 @@ public class BlockChain implements Iterable<Transaction> {
   // +--------+------------------------------------------------------
   // | Fields |
   // +--------+
+
+  BlockNode first;
+  BlockNode last;
 
   // +--------------+------------------------------------------------
   // | Constructors |
@@ -123,15 +128,14 @@ public class BlockChain implements Iterable<Transaction> {
    * @return an iterator of all the people in the system.
    */
   public Iterator<String> users() {
-    return new Iterator<String>() {
-      public boolean hasNext() {
-        return false;   // STUB
-      } // hasNext()
-
-      public String next() {
-        throw new NoSuchElementException();     // STUB
-      } // next()
-    };
+    HashSet<String> users;
+    this.iterator().forEachRemaining((t) -> {
+	if (!t.getSource().equals("")) {
+	  users.add(t.getSource());
+	} // if
+	users.add(t.getTarget());
+      });
+    return users.iterator();
   } // users()
 
   /**
@@ -153,12 +157,27 @@ public class BlockChain implements Iterable<Transaction> {
    */
   public Iterator<Block> blocks() {
     return new Iterator<Block>() {
+      /** Tracker for the next node to visit. */
+      private BlockNode nextNode = BlockChain.this.first;
+
+      /**
+       * Sees if there are any nodes left to give.
+       */
       public boolean hasNext() {
-        return false;   // STUB
+        return nextNode != null;
       } // hasNext()
 
+      /**
+       * Returns the next node's block.
+       * @return The next block.
+       */
       public Block next() {
-        throw new NoSuchElementException();     // STUB
+        Block ret = this.nextNode.data;
+	if (ret == null) {
+	  throw new NoSuchElementException();
+	} // if
+	this.nextNode = this.nextNode.next;
+	return ret;
       } // next()
     };
   } // blocks()
@@ -170,12 +189,32 @@ public class BlockChain implements Iterable<Transaction> {
    */
   public Iterator<Transaction> iterator() {
     return new Iterator<Transaction>() {
+      /** The underlying block iterator. */
+      private Iterator<Block> blockIterator;
+
+      // FIXME This may be required, but may throw a style error.
+      {
+	this.blockIterator = BlockChain.this.blocks();
+      }
+
+      /**
+       * Do we have another block to get a transaction from?
+       * @return true if so, false if not.
+       */
       public boolean hasNext() {
-        return false;   // STUB
+	return this.blockIterator.hasNext();
       } // hasNext()
 
+      /**
+       * Get the next transaction.
+       * @return The next transaction.
+       */
       public Transaction next() {
-        throw new NoSuchElementException();     // STUB
+	Block ret = this.blockIterator.next();
+	if (ret == null) {
+	  throw new NoSuchElementException();
+	} // if
+	return ret.getTransaction();
       } // next()
     };
   } // iterator()
