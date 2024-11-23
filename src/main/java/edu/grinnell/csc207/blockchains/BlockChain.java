@@ -297,7 +297,7 @@ public class BlockChain implements Iterable<Transaction> {
 
       // FIXME This may be required, but may throw a style error.
       {
-	      this.blockIterator = BlockChain.this.blocks();
+	this.blockIterator = BlockChain.this.blocks();
       }
 
       /**
@@ -313,13 +313,13 @@ public class BlockChain implements Iterable<Transaction> {
        * @return The next transaction.
        */
       public Transaction next() {
-	      Block ret = this.blockIterator.next();
-	      if (ret == null) {
-	        throw new NoSuchElementException();
-	      } // if
-	      return ret.getTransaction();
-        } // next()
-       };
-      } // iterator()
+	Block ret = this.blockIterator.next();
+	if (ret == null) {
+	  throw new NoSuchElementException();
+	} // if
+	return ret.getTransaction();
+      } // next()
+    };
+  } // iterator()
 
 } // class BlockChain
