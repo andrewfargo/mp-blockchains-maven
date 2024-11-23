@@ -25,7 +25,7 @@ public class Block {
   /**
    * The formatting string for toString() method.
    */
-  private static final FSTR = "Block %d (Transaction: %s, Nonce: %l, prevHash: %s, hash: %s)";
+  private static final String FSTR = "Block %d (Transaction: %s, Nonce: %l, prevHash: %s, hash: %s)";
 
   /**
    * This block's number in the chain.
@@ -72,12 +72,15 @@ public class Block {
    * @param transaction The transaction data.
    * @param prevHash The previous block's hash.
    */
-  private Block(int num, Transaction transaction, Hash prevHash)
-    throws NoSuchAlgorithmException {
+  private Block(int num, Transaction transaction, Hash prevHash) {
     this.blockNum = num;
     this.data = transaction;
     this.previousHash = prevHash;
-    this.md = MessageDigest.getInstance("sha-256");
+    try {
+      this.md = MessageDigest.getInstance("sha-256");
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    } //try-catch
   } // Block(int, Transaction, Hash)
   
   /**
@@ -110,8 +113,9 @@ public class Block {
    *   The hash of the previous block.
    * @param nonce
    *   The nonce of the block.
-   */
-  Block(int num, Transaction transaction, Hash prevHash, long nonce) {
+      * @throws NoSuchAlgorithmException 
+      */
+     Block(int num, Transaction transaction, Hash prevHash, long nonce) throws NoSuchAlgorithmException {
     this(num, transaction, prevHash);
     this.nonceVal = nonce;
     this.computeHash();

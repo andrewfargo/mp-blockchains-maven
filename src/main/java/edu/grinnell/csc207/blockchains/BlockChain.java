@@ -8,7 +8,8 @@ import java.util.HashSet;
 /**
  * A full blockchain.
  *
- * @author Your Name Here
+ * @author Tiffany Tang
+ * @author Andrew Fargo
  */
 public class BlockChain implements Iterable<Transaction> {
   // +--------+------------------------------------------------------
@@ -17,6 +18,9 @@ public class BlockChain implements Iterable<Transaction> {
 
   BlockNode first;
   BlockNode last;
+  int size;
+  Transaction transactionT;
+  HashValidator validator;
 
   // +--------------+------------------------------------------------
   // | Constructors |
@@ -29,7 +33,14 @@ public class BlockChain implements Iterable<Transaction> {
    *   The validator used to check elements.
    */
   public BlockChain(HashValidator check) {
-    // STUB
+    this.size = 1;
+    Hash firstHash = new Hash(null);
+    Block firstBlock =  new Block(this.size, transactionT, firstHash, check);
+    this.size++;
+    Block lastBlock = new Block(this.size, transactionT, firstBlock.getHash(), check);
+    this.last = new BlockNode(lastBlock, null);
+    this.first = new BlockNode(firstBlock, last);
+    this.validator = check;
   } // BlockChain(HashValidator)
 
   // +---------+-----------------------------------------------------
@@ -55,7 +66,7 @@ public class BlockChain implements Iterable<Transaction> {
    * @return a new block with correct number, hashes, and such.
    */
   public Block mine(Transaction t) {
-    return new Block(10, t, new Hash(new byte[] {7}), 11);       // STUB
+    return new Block(this.size, t, last.data.getHash(), this.validator );
   } // mine(Transaction)
 
   /**
@@ -64,7 +75,7 @@ public class BlockChain implements Iterable<Transaction> {
    * @return the number of blocks in the chain, including the initial block.
    */
   public int getSize() {
-    return 2;   // STUB
+    return this.size;
   } // getSize()
 
   /**
@@ -78,7 +89,7 @@ public class BlockChain implements Iterable<Transaction> {
    *   hash is incorrect.
    */
   public void append(Block blk) {
-    // STUB
+    
   } // append()
 
   /**
@@ -133,7 +144,7 @@ public class BlockChain implements Iterable<Transaction> {
    * @return an iterator of all the people in the system.
    */
   public Iterator<String> users() {
-    HashSet<String> users;
+    HashSet<String> users = new HashSet<String>();
     this.iterator().forEachRemaining((t) -> {
 	if (!t.getSource().equals("")) {
 	  users.add(t.getSource());
