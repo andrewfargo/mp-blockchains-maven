@@ -75,7 +75,7 @@ public class Hash {
   public String toString() {
     String out = "";
     for (byte b : this.hash) {
-      out += String.format("%0X");
+      out += String.format("%02X", b);
     } // for
     return out;
   } // toString()
@@ -93,6 +93,11 @@ public class Hash {
     return (other instanceof Hash) && this.equals((Hash) other);
   } // equals(Object)
 
+  /**
+   * Determine if it is equal to another Hash.
+   * @param other
+   * @return true if the hash equals to the other hash.
+   */
   public boolean equals(Hash other) {
     return Arrays.equals(this.hash, other.getBytes());
   } // equals(Hash)

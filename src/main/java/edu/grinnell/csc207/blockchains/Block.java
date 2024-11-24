@@ -16,38 +16,39 @@ public class Block {
   // +--------+------------------------------------------------------
   // | Fields |
   // +--------+
-  
+
   /**
    * A random number generator identical across blocks.
    */
   private static Random rd = new Random();
-  
+
   /**
    * The formatting string for toString() method.
    */
-  private static final String FSTR = "Block %d (Transaction: %s, Nonce: %l, prevHash: %s, hash: %s)";
+  private static final String FSTR = "Block %d (Transaction: %s, Nonce: %d"
+                                      + " prevHash: %s, hash: %s)";
 
   /**
    * This block's number in the chain.
    */
   private int blockNum;
-  
+
   /**
    * The transaction data.
    */
   private Transaction data;
-  
+
   /**
    * The hash of the previous block in the chain.
    */
   private Hash previousHash;
-  
+
   /**
    * The nonce value.
    * This value changes during mining.
    */
   private long nonceVal;
-  
+
   /**
    * The hash of the block.
    * This value changes during mining.
@@ -82,7 +83,7 @@ public class Block {
       throw new RuntimeException(e);
     } //try-catch
   } // Block(int, Transaction, Hash)
-  
+
   /**
    * Create a new block from the specified block number, transaction, and
    * previous hash, mining to choose a nonce that meets the requirements
@@ -97,7 +98,7 @@ public class Block {
    * @param check
    *   The validator used to check the block.
    */
-  Block(int num, Transaction transaction, Hash prevHash, HashValidator check) {
+  public Block(int num, Transaction transaction, Hash prevHash, HashValidator check) {
     this(num, transaction, prevHash);
     this.mine(check);
   } // Block(int, Transaction, Hash, HashValidator)
@@ -114,10 +115,10 @@ public class Block {
    * @param nonce
    *   The nonce of the block.
    */
-  Block(int num, Transaction transaction, Hash prevHash, long nonce) {
+  public Block(int num, Transaction transaction, Hash prevHash, long nonce) {
     this(num, transaction, prevHash);
     this.nonceVal = nonce;
-    this.computeHash();
+    this.computeThisHash();
   } // Block(int, Transaction, Hash, long)
 
   // +---------+-----------------------------------------------------
@@ -126,25 +127,39 @@ public class Block {
 
   /**
    * Compute a new nonce by repeatedly checking random values.
+   * @param check helps to check if the hash is valid.
    */
   private void mine(HashValidator check) {
     do {
       this.nonceVal = rd.nextLong();
-      this.computeHash();
+      this.computeThisHash();
     } while (!check.isValid(this.blockHash));
   } // mine()
-  
   /**
-   * Compute the hash of the block given all the other info already
-   * stored in the block.
+   * Compute the hash for the block.
+   * @param blockN
+   * @param t
+   * @param nonce
+   * @param pHash
+   * @return the hash in a form of byte array.
    */
-  private void computeHash() {
-    md.reset();
-    md.update(ByteBuffer.allocate(Integer.BYTES).putInt(this.blockNum));
-    md.update(ByteBuffer.allocate(Integer.BYTES).putInt(this.data.hashCode()));
+  public byte[] computeHash(int blockN, Transaction t, long nonce, Hash pHash) {
+    md.update(ByteBuffer.allocate(Integer.BYTES).putInt(this.blockNum).array());
+    md.update(this.data.getSource().getBytes());
+    md.update(this.data.getTarget().getBytes());
+    md.update(ByteBuffer.allocate(Integer.BYTES).putInt(this.data.getAmount()).array());
     md.update(this.previousHash.getBytes());
-    md.update(ByteBuffer.allocate(Long.BYTES).putLong(this.nonceVal));
-    this.blockHash = new Hash(md.digest());
+    md.update(ByteBuffer.allocate(Long.BYTES).putLong(this.nonceVal).array());
+    return md.digest();
+  } //computeHash(int, Transaction, long, Hash)
+
+  /**
+   * Compute the hash of the block given all the other
+   * info already stored in the block. Also sets the hash.
+   */
+  private void computeThisHash() {
+    this.blockHash = new Hash(computeHash(this.blockNum,
+                                          this.data, this.nonceVal, this.previousHash));
   } // computeHash()
 
   // +---------+-----------------------------------------------------
@@ -203,6 +218,6 @@ public class Block {
    */
   public String toString() {
     return String.format(Block.FSTR, this.blockNum, this.data.toString(), this.nonceVal,
-			 this.previousHash.toString(), this.blockHash.toString());
+    this.previousHash.toString(), this.blockHash.toString());
   } // toString()
 } // class Block

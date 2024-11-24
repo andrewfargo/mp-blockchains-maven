@@ -25,7 +25,7 @@ public class BlockChainUI {
   /**
    * The number of bytes we validate. Should be set to 3 before submitting.
    */
-  static final int VALIDATOR_BYTES = 0;
+  static final int VALIDATOR_BYTES = 1;
 
   // +---------+-----------------------------------------------------
   // | Helpers |
@@ -88,6 +88,7 @@ public class BlockChainUI {
     String source;
     String target;
     int amount;
+    long nonce;
 
     while (!done) {
       pen.print("\nCommand: ");
@@ -99,19 +100,63 @@ public class BlockChainUI {
 
       switch (command.toLowerCase()) {
         case "append":
-          pen.printf("Command '%s' is not yet implemented", command);
+          pen.print("\nSource (return for deposit): ");
+          pen.flush();
+          source = eyes.readLine();
+          pen.print("\nTarget: ");
+          pen.flush();
+          target = eyes.readLine();
+          pen.print("\nAmount: ");
+          pen.flush();
+          try {
+            amount = Integer.parseInt(eyes.readLine());
+          } catch (Exception e) {
+            pen.println("Error in input type: " + e.getMessage());
+            break;
+          } //try-catch
+          pen.print("\nNonce: ");
+          pen.flush();
+          try {
+            nonce = Long.parseLong(eyes.readLine());
+          } catch (Exception e) {
+            pen.println("Error in input type: " + e.getMessage());
+            break;
+          } //try-catch
+
+          Transaction appendedTransaction = new Transaction(source, target, amount);
+          Block appendedBlock = new Block(chain.getSize(), appendedTransaction,
+                                chain.getHash(), nonce);
+          try {
+            chain.append(appendedBlock);
+          } catch (IllegalArgumentException e) {
+            pen.println("Could not append: " + e.getMessage());
+          } //try/catch
           break;
 
         case "balance":
-          pen.printf("Command '%s' is not yet implemented", command);
+          pen.print("\nUser: ");
+          pen.flush();
+          String user = eyes.readLine();
+          try {
+            int bal = chain.balance(user);
+            pen.printf("%s's balance is %d", user, bal);
+          } catch (Exception e) {
+            pen.printf("Something wrong in the chain: " + e.getMessage());
+          } // try/catch
           break;
 
         case "blocks":
-          pen.printf("Command '%s' is not yet implemented", command);
+          chain.blocks().forEachRemaining(b -> pen.println(b.toString()));
           break;
 
         case "check":
-          pen.printf("Command '%s' is not yet implemented", command);
+          try {
+            chain.check();
+          } catch (Exception e) {
+            pen.println(e.getMessage());
+            break;
+          } // try/catch
+          pen.println("Chain checks out.");
           break;
 
         case "help":
@@ -121,7 +166,13 @@ public class BlockChainUI {
         case "mine":
           source = IOUtils.readLine(pen, eyes, "Source (return for deposit): ");
           target = IOUtils.readLine(pen, eyes, "Target: ");
-          amount = IOUtils.readInt(pen, eyes, "Amount: ");
+          try {
+            amount = IOUtils.readInt(pen, eyes, "Amount: ");
+          } catch (Exception e) {
+            pen.println("Error in input type: " + e.getMessage());
+            break;
+          } //try-catch
+          /*A new block created with the information provided by the user. */
           Block b = chain.mine(new Transaction(source, target, amount));
           pen.println("Nonce: " + b.getNonce());
           break;
@@ -131,15 +182,19 @@ public class BlockChainUI {
           break;
 
         case "remove":
-          pen.printf("Command '%s' is not yet implemented", command);
+          if (chain.removeLast()) {
+            pen.printf("Removed last element.");
+          } else {
+            pen.printf("Could not remove last element.");
+          } //if-else
           break;
 
         case "transactions":
-          pen.printf("Command '%s' is not yet implemented", command);
+          chain.iterator().forEachRemaining(t -> pen.println(t.toString()));
           break;
 
         case "users":
-          pen.printf("Command '%s' is not yet implemented", command);
+          chain.users().forEachRemaining(u -> pen.println(u));
           break;
 
         default:
