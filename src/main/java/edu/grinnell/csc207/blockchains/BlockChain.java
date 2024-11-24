@@ -53,19 +53,23 @@ public class BlockChain implements Iterable<Transaction> {
   // +---------+
 
   /**
-   * A method that checks to see if the previous hash stored is correct.
-   * @param prev
-   * @param current
+   * A method that checks to see if the hash matches prev's hash,
+   * the hash is valid to our criteria, and the hash is consistent.
+   * @param prev The previous block.
+   * @param blk The current block.
    * @return true if the hash is valid, otherwise return false;
    */
-  public boolean checkHash(Block prev, Block current) {
-    return current.getPrevHash() == prev.getHash();
+  public boolean checkHash(Block prev, Block blk) {
+    return blk.getPrevHash() == prev.getHash()
+      && this.validator.isValid(blk.getHash())
+      && Arrays.equals(blk.computeHash(blk.getNum(), blk.getTransaction(),
+                                       blk.getNonce(), blk.getPrevHash()).getBytes(),
+                       blk.getHash().getBytes());
   } // checkHash
 
   /**
    * Checks to see if the hash is a valid hash.
-   * @throws Exception
-   *
+   * @throws Exception If it's not.
    */
   public void checkHashes() throws Exception {
     Iterator<Block> blocks = this.blocks();
@@ -116,12 +120,9 @@ public class BlockChain implements Iterable<Transaction> {
    *   hash is incorrect.
    */
   public void append(Block blk) {
-    if (!checkHash(this.last.data, blk)
-        || !this.validator.isValid(blk.getHash())
-        || !Arrays.equals(blk.computeHash(blk.getNum(), blk.getTransaction(),
-            blk.getNonce(), blk.getPrevHash()), blk.getHash().getBytes())) {
+    if (!checkHash(this.last.data, blk)) {
       throw new IllegalArgumentException("Invalid hash in appended block: " + blk.getHash());
-    } //if
+    } // if
     BlockNode newLast = new BlockNode(blk, null);
     this.last.next = newLast;
     this.last = newLast;
@@ -210,14 +211,14 @@ public class BlockChain implements Iterable<Transaction> {
 
 
  /**
-  * Alter the balance differently based on if it is a deposit or a transfer.
+  * Process a transfer.
   *
-  * @param balances
-  * @param person
-  * @param amount
-  * @param isSource
-  * @param num
-  * @throws Exception
+  * @param balances The mutable hash map of users and balances.
+  * @param person The person to modify.
+  * @param amount The amount the transaction lists.
+  * @param isSource true if person is the source, false if target.
+  * @param num The number of the transaction.
+  * @throws Exception If the transaction is invalid due to balance issues.
   */
   private void alterAmount(HashMap<String, Integer> balances,
                            String person, Integer amount,
@@ -272,7 +273,7 @@ public class BlockChain implements Iterable<Transaction> {
    *   The user whose balance we want to find.
    *
    * @return that user's balance (or 0, if the user is not in the system).
-   * @throws Exception
+   * @throws Exception if the Transactions are invalid.
    */
   public int balance(String user) throws Exception {
     Integer balanceOrNull = balances().get(user);
@@ -326,7 +327,9 @@ public class BlockChain implements Iterable<Transaction> {
       private Iterator<Block> blockIterator;
       {
         this.blockIterator = BlockChain.this.blocks();
-      } //inner class
+        // Skip the empty transaction.
+        this.blockIterator.next();
+      } // Static initializer
 
       /**
       * Do we have another block to get a transaction from?
@@ -349,5 +352,4 @@ public class BlockChain implements Iterable<Transaction> {
       } // next()
     }; //Iterator<Transaction>
   } // iterator()
-
 } // class BlockChain

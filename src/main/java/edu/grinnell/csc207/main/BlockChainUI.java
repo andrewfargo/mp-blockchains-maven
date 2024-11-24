@@ -14,7 +14,8 @@ import java.io.InputStreamReader;
 /**
  * A simple UI for our BlockChain class.
  *
- * @author Your Name Here
+ * @author Tiffany Tang,
+ * @author Andrew Fargo
  * @author Samuel A. Rebelsky
  */
 public class BlockChainUI {
@@ -25,7 +26,7 @@ public class BlockChainUI {
   /**
    * The number of bytes we validate. Should be set to 3 before submitting.
    */
-  static final int VALIDATOR_BYTES = 1;
+  static final int VALIDATOR_BYTES = 3;
 
   // +---------+-----------------------------------------------------
   // | Helpers |
@@ -100,28 +101,10 @@ public class BlockChainUI {
 
       switch (command.toLowerCase()) {
         case "append":
-          pen.print("\nSource (return for deposit): ");
-          pen.flush();
-          source = eyes.readLine();
-          pen.print("\nTarget: ");
-          pen.flush();
-          target = eyes.readLine();
-          pen.print("\nAmount: ");
-          pen.flush();
-          try {
-            amount = Integer.parseInt(eyes.readLine());
-          } catch (Exception e) {
-            pen.println("Error in input type: " + e.getMessage());
-            break;
-          } //try-catch
-          pen.print("\nNonce: ");
-          pen.flush();
-          try {
-            nonce = Long.parseLong(eyes.readLine());
-          } catch (Exception e) {
-            pen.println("Error in input type: " + e.getMessage());
-            break;
-          } //try-catch
+          source = IOUtils.readLine(pen, eyes, "\nSource: ");
+          target = IOUtils.readLine(pen, eyes, "Target: ");
+          amount = IOUtils.readInt(pen, eyes, "Amount: ");
+          nonce = IOUtils.readLong(pen, eyes, "Nonce: ");
 
           Transaction appendedTransaction = new Transaction(source, target, amount);
           Block appendedBlock = new Block(chain.getSize(), appendedTransaction,
@@ -134,9 +117,7 @@ public class BlockChainUI {
           break;
 
         case "balance":
-          pen.print("\nUser: ");
-          pen.flush();
-          String user = eyes.readLine();
+          String user = IOUtils.readLine(pen, eyes, "\nUser: ");
           try {
             int bal = chain.balance(user);
             pen.printf("%s's balance is %d", user, bal);
@@ -166,12 +147,8 @@ public class BlockChainUI {
         case "mine":
           source = IOUtils.readLine(pen, eyes, "Source (return for deposit): ");
           target = IOUtils.readLine(pen, eyes, "Target: ");
-          try {
-            amount = IOUtils.readInt(pen, eyes, "Amount: ");
-          } catch (Exception e) {
-            pen.println("Error in input type: " + e.getMessage());
-            break;
-          } //try-catch
+          amount = IOUtils.readInt(pen, eyes, "Amount: ");
+
           /*A new block created with the information provided by the user. */
           Block b = chain.mine(new Transaction(source, target, amount));
           pen.println("Nonce: " + b.getNonce());

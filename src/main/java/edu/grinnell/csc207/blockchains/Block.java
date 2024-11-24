@@ -61,6 +61,16 @@ public class Block {
    */
   private MessageDigest md;
 
+  /**
+   * Int-sized byte buffer for computing hashes.
+   */
+  ByteBuffer intBuffer;
+
+  /**
+   * Long-sized byte buffer for computing hashes.
+   */
+  ByteBuffer longBuffer;
+
   // +--------------+------------------------------------------------
   // | Constructors |
   // +--------------+
@@ -77,9 +87,12 @@ public class Block {
     this.blockNum = num;
     this.data = transaction;
     this.previousHash = prevHash;
+    this.intBuffer = ByteBuffer.allocate(Integer.BYTES);
+    this.longBuffer = ByteBuffer.allocate(Long.BYTES);
     try {
       this.md = MessageDigest.getInstance("sha-256");
     } catch (NoSuchAlgorithmException e) {
+      // Unrecoverable.
       throw new RuntimeException(e);
     } //try-catch
   } // Block(int, Transaction, Hash)
@@ -143,14 +156,17 @@ public class Block {
    * @param pHash
    * @return the hash in a form of byte array.
    */
-  public byte[] computeHash(int blockN, Transaction t, long nonce, Hash pHash) {
-    md.update(ByteBuffer.allocate(Integer.BYTES).putInt(this.blockNum).array());
+  public Hash computeHash(int blockN, Transaction t, long nonce, Hash pHash) {
+    md.update(intBuffer.putInt(this.blockNum).array());
+    intBuffer.clear();
     md.update(this.data.getSource().getBytes());
     md.update(this.data.getTarget().getBytes());
-    md.update(ByteBuffer.allocate(Integer.BYTES).putInt(this.data.getAmount()).array());
+    md.update(intBuffer.putInt(this.data.getAmount()).array());
+    intBuffer.clear();
     md.update(this.previousHash.getBytes());
-    md.update(ByteBuffer.allocate(Long.BYTES).putLong(this.nonceVal).array());
-    return md.digest();
+    md.update(longBuffer.putLong(this.nonceVal).array());
+    longBuffer.clear();
+    return new Hash(md.digest());
   } //computeHash(int, Transaction, long, Hash)
 
   /**
@@ -158,9 +174,9 @@ public class Block {
    * info already stored in the block. Also sets the hash.
    */
   private void computeThisHash() {
-    this.blockHash = new Hash(computeHash(this.blockNum,
-                                          this.data, this.nonceVal, this.previousHash));
-  } // computeHash()
+    this.blockHash = computeHash(this.blockNum, this.data,
+                                 this.nonceVal, this.previousHash);
+  } // computeThisHash()
 
   // +---------+-----------------------------------------------------
   // | Methods |
